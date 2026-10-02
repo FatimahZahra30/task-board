@@ -21,7 +21,36 @@ function validateTask(title: unknown, status: unknown) {
   return null;
 }
 
-router.get('/', (_req, res) => {
+function validateTaskStatus(status: unknown) {
+  if (
+    typeof status !== 'string' ||
+    !validStatuses.includes(status)
+  ) {
+    return 'Status must be todo, in_progress, or done';
+  }
+
+  return null;
+}
+
+router.get('/', (req, res) => {
+  const { status } = req.query;
+
+  if (status !== undefined) {
+    const validationError = validateTaskStatus(status);
+
+    if (validationError) {
+      res.status(400).json({ error: validationError });
+      return;
+    }
+
+    const tasks = db
+      .prepare('SELECT * FROM tasks WHERE status = ?')
+      .all(status);
+
+    res.json(tasks);
+    return;
+  }
+
   const tasks = db.prepare('SELECT * FROM tasks').all();
 
   res.json(tasks);
