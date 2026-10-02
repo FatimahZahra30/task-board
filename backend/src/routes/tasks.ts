@@ -32,4 +32,39 @@ router.post('/', (req, res) => {
   res.status(201).json(task);
 });
 
+router.patch('/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const { title, description, status, dueDate } = req.body;
+
+  const existingTask = db
+    .prepare('SELECT * FROM tasks WHERE id = ?')
+    .get(id);
+
+  if (!existingTask) {
+    res.status(404).json({ error: 'Task not found' });
+    return;
+  }
+
+  db.prepare(`
+    UPDATE tasks
+    SET title = ?,
+        description = ?,
+        status = ?,
+        due_date = ?
+    WHERE id = ?
+  `).run(
+    title,
+    description ?? null,
+    status,
+    dueDate ?? null,
+    id
+  );
+
+  const updatedTask = db
+    .prepare('SELECT * FROM tasks WHERE id = ?')
+    .get(id);
+
+  res.json(updatedTask);
+});
+
 export default router;
