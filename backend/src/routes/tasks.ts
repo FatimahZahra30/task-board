@@ -67,4 +67,21 @@ router.patch('/:id', (req, res) => {
   res.json(updatedTask);
 });
 
+router.delete('/:id', (req, res) => {
+  const id = Number(req.params.id);
+
+  const existingTask = db
+    .prepare('SELECT * FROM tasks WHERE id = ?')
+    .get(id);
+
+  if (!existingTask) {
+    res.status(404).json({ error: 'Task not found' });
+    return;
+  }
+
+  db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
+
+  res.status(204).send();
+});
+
 export default router;
