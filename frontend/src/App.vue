@@ -118,6 +118,7 @@ onMounted(() => {
         v-for="column in columns"
         :key="column.status"
         class="column"
+        :class="`column-${column.status}`"
         @dragover.prevent
         @drop="handleDrop(column.status)"
       >

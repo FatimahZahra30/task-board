@@ -40,16 +40,40 @@ body {
 .column {
   min-height: 500px;
   padding: 20px;
-  background: #e5e7eb;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .column h2 {
   margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 20px;
 }
 
-.column-content {
-  min-height: 400px;
+/* Todo */
+.column-todo {
+  background: #f9eac6;
+}
+
+.column-todo h2 {
+  color: #b7791f;
+}
+
+/* In Progress */
+.column-in_progress {
+  background: #c7ddf7;
+}
+
+.column-in_progress h2 {
+  color: #3973b9;
+}
+
+/* Done */
+.column-done {
+  background: #d3f8df;
+}
+
+.column-done h2 {
+  color: #3f8f5f;
 }
 
 .empty-message {
