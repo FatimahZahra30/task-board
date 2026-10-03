@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import TaskCard from './components/TaskCard.vue';
+import TaskForm from './components/TaskForm.vue';
 import type { Task } from './types/task';
 
 const columns = [
@@ -10,6 +11,7 @@ const columns = [
 ];
 
 const tasks = ref<Task[]>([]);
+const showAddForm = ref(false);
 
 async function fetchTasks() {
   const response = await fetch('http://localhost:3000/tasks');
@@ -21,6 +23,11 @@ async function fetchTasks() {
   tasks.value = await response.json();
 }
 
+async function handleTaskCreated() {
+  await fetchTasks();
+  showAddForm.value = false;
+}
+
 onMounted(() => {
   fetchTasks();
 });
@@ -30,8 +37,19 @@ onMounted(() => {
   <main class="app">
     <header class="header">
       <h1>Task Board</h1>
-      <button class="add-button">+ Add Task</button>
+      <button
+        class="add-button"
+        @click="showAddForm = true"
+      >
+        + Add Task
+      </button>
     </header>
+
+    <TaskForm
+      v-if="showAddForm"
+      @cancel="showAddForm = false"
+      @task-created="handleTaskCreated"
+    />
 
     <section class="board">
       <div
