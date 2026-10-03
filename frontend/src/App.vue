@@ -15,6 +15,11 @@ const tasks = ref<Task[]>([]);
 const showAddForm = ref(false);
 
 const selectedTask = ref<Task | null>(null);
+const draggedTask = ref<Task | null>(null);
+
+function handleDragStart(task: Task) {
+  draggedTask.value = task;
+}
 
 function editTask(task: Task) {
   selectedTask.value = task;
@@ -43,6 +48,38 @@ async function fetchTasks() {
 async function handleTaskCreated() {
   await fetchTasks();
   showAddForm.value = false;
+}
+
+async function handleDrop(status: string) {
+  if (!draggedTask.value) {
+    return;
+  }
+
+  if (draggedTask.value.status === status) {
+    draggedTask.value = null;
+    return;
+  }
+
+  const response = await fetch(
+    `http://localhost:3000/tasks/${draggedTask.value.id}`,
+    {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        status
+      })
+    }
+  );
+
+  if (!response.ok) {
+    alert('Failed to move task');
+    return;
+  }
+
+  draggedTask.value = null;
+  await fetchTasks();
 }
 
 onMounted(() => {
@@ -81,6 +118,8 @@ onMounted(() => {
         v-for="column in columns"
         :key="column.status"
         class="column"
+        @dragover.prevent
+        @drop="handleDrop(column.status)"
       >
         <h2>{{ column.title }}</h2>
 
@@ -90,6 +129,7 @@ onMounted(() => {
             :key="task.id"
             :task="task"
             @open="editTask(task)"
+            @drag-start="handleDragStart"
           />
         </div>
       </div>

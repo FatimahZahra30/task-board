@@ -7,6 +7,7 @@ defineProps<{
 
 const emit = defineEmits<{
   open: [];
+  dragStart: [task: Task];
 }>();
 
 function formatDate(date: string) {
@@ -37,7 +38,9 @@ function isOverdue(task: Task) {
 <template>
   <article
     class="task-card"
+    draggable="true"
     @click="emit('open')"
+    @dragstart="emit('dragStart', task)"
   >
     <h3>{{ task.title }}</h3>
 
