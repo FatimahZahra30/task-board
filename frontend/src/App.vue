@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue';
 import TaskCard from './components/TaskCard.vue';
 import TaskForm from './components/TaskForm.vue';
 import type { Task } from './types/task';
+import EditTaskModal from './components/EditTaskModal.vue';
 
 const columns = [
   { title: 'Todo', status: 'todo' },
@@ -12,6 +13,22 @@ const columns = [
 
 const tasks = ref<Task[]>([]);
 const showAddForm = ref(false);
+
+const selectedTask = ref<Task | null>(null);
+
+function editTask(task: Task) {
+  selectedTask.value = task;
+}
+
+async function handleTaskUpdated() {
+  await fetchTasks();
+  selectedTask.value = null;
+}
+
+async function handleTaskDeleted() {
+  await fetchTasks();
+  selectedTask.value = null;
+}
 
 async function fetchTasks() {
   const response = await fetch('http://localhost:3000/tasks');
@@ -51,6 +68,14 @@ onMounted(() => {
       @task-created="handleTaskCreated"
     />
 
+    <EditTaskModal
+      v-if="selectedTask"
+      :task="selectedTask"
+      @close="selectedTask = null"
+      @task-updated="handleTaskUpdated"
+      @task-deleted="handleTaskDeleted"
+    />
+
     <section class="board">
       <div
         v-for="column in columns"
@@ -64,6 +89,7 @@ onMounted(() => {
             v-for="task in tasks.filter(task => task.status === column.status)"
             :key="task.id"
             :task="task"
+            @open="editTask(task)"
           />
         </div>
       </div>

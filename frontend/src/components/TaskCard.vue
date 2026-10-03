@@ -4,10 +4,17 @@ import type { Task } from '../types/task';
 defineProps<{
   task: Task;
 }>();
+
+const emit = defineEmits<{
+  open: [];
+}>();
 </script>
 
 <template>
-  <article class="task-card">
+  <article
+    class="task-card"
+    @click="emit('open')"
+  >
     <h3>{{ task.title }}</h3>
 
     <p v-if="task.description">
@@ -27,6 +34,14 @@ defineProps<{
   margin-bottom: 12px;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.task-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 .task-card h3 {

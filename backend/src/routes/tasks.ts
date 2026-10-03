@@ -1,6 +1,17 @@
 import { Router } from 'express';
 import db from '../db/database.js';
 
+function formatTask(task: any) {
+  return {
+    id: task.id,
+    title: task.title,
+    description: task.description ?? undefined,
+    status: task.status,
+    dueDate: task.due_date ?? undefined,
+    createdAt: task.created_at
+  };
+}
+
 const router = Router();
 
 const validStatuses = ['todo', 'in_progress', 'done'];
@@ -47,13 +58,13 @@ router.get('/', (req, res) => {
       .prepare('SELECT * FROM tasks WHERE status = ?')
       .all(status);
 
-    res.json(tasks);
+    res.json(tasks.map(formatTask));
     return;
   }
 
   const tasks = db.prepare('SELECT * FROM tasks').all();
 
-  res.json(tasks);
+  res.json(tasks.map(formatTask));
 });
 
 router.post('/', (req, res) => {
@@ -83,7 +94,7 @@ router.post('/', (req, res) => {
     .prepare('SELECT * FROM tasks WHERE id = ?')
     .get(result.lastInsertRowid);
 
-  res.status(201).json(task);
+  res.status(201).json(formatTask(task));
 });
 
 router.patch('/:id', (req, res) => {
@@ -138,7 +149,7 @@ router.patch('/:id', (req, res) => {
     .prepare('SELECT * FROM tasks WHERE id = ?')
     .get(id);
 
-  res.json(updatedTask);
+  res.json(formatTask(updatedTask));
 });
 
 router.delete('/:id', (req, res) => {
