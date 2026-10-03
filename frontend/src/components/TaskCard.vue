@@ -8,6 +8,30 @@ defineProps<{
 const emit = defineEmits<{
   open: [];
 }>();
+
+function formatDate(date: string) {
+  return new Date(date).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+}
+
+function isOverdue(task: Task) {
+  if (!task.dueDate || task.status === 'done') {
+    return false;
+  }
+
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+
+  const todayString = `${year}-${month}-${day}`;
+
+  return task.dueDate < todayString;
+}
 </script>
 
 <template>
@@ -21,9 +45,21 @@ const emit = defineEmits<{
       {{ task.description }}
     </p>
 
+   <div class="task-dates">
     <small v-if="task.dueDate">
-      Due: {{ task.dueDate }}
+        Due: {{ formatDate(task.dueDate) }}
     </small>
+
+    <small>
+        Created: {{ formatDate(task.createdAt) }}
+    </small>
+    <span
+        v-if="isOverdue(task)"
+        class="overdue-label"
+    >
+        Overdue
+    </span>
+    </div>
   </article>
 </template>
 
@@ -55,5 +91,32 @@ const emit = defineEmits<{
 
 .task-card small {
   color: #777;
+}
+
+.task-dates {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.task-card small {
+  color: #777;
+}
+
+.overdue-label {
+  display: inline-block;
+  width: fit-content;
+  margin-top: 10px;
+
+  padding: 3px 8px;
+
+  border-radius: 999px;
+
+  background: #fee2e2;
+  color: #b91c1c;
+
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 </style>
